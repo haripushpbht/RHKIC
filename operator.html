@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Operator Panel - Students</title>
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(to bottom right, #2e7d32, #66bb6a, #a5d6a7);
+    color: #fff;
+    padding: 20px;
+  }
+
+  h1 { text-align: center; margin-bottom: 20px; }
+  .controls { display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:20px }
+  button { padding:10px 20px; border:none; border-radius:6px; cursor:pointer; background:#FBC02D; color:#000; font-weight:700 }
+  button:hover{ background:#FFD600 }
+  select { padding:10px; border-radius:6px; border:none; outline:none; background:rgba(255,255,255,0.2); color:#fff; font-weight:600 }
+  option { color:#000 }
+  .students-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:16px; margin-top:20px }
+  .card{ background:rgba(255,255,255,0.1); border-radius:10px; padding:12px; text-align:center; backdrop-filter:blur(6px) }
+  .card:hover{ transform:translateY(-4px); background:rgba(255,255,255,0.2) }
+  img.photo{ width:100%; height:150px; object-fit:cover; border-radius:8px; background:#222; margin-bottom:8px }
+  .card h4{ margin:8px 0 4px 0; font-size:16px; color:#fff }
+  .card div{ font-size:13px; opacity:0.9 }
+  a{ color:yellow; text-decoration:none; font-weight:bold }
+</style>
+<body>
+  <!-- Top header with logo (same as other pages) -->
+  <div style="display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:12px;">
+    <a href="index.html" style="display:inline-block;">
+      <img src="logooooo.png" alt="RHKIC Logo" style="width:64px;height:64px;border-radius:8px;object-fit:cover;">
+    </a>
+    <div style="font-weight:700;font-size:18px;color:#fff;">RHKIC BANDIYA</div>
+  </div>
+  <h1>Operator Dashboard</h1>
+  <div class="controls">
+    <a href="index.html" style="color:yellow;font-weight:bold;text-decoration:none;">Home</a>
+    <button onclick="logout()">Logout</button>
+    <label style="margin-left:12px">Class:</label>
+    <select id="classSelect">
+      <option value="all">All</option>
+      <option value="Class 1">1st</option>
+      <option value="Class 2">2nd</option>
+      <option value="Class 3">3rd</option>
+      <option value="Class 4">4th</option>
+      <option value="Class 5">5th</option>
+      <option value="Class 6">6th</option>
+      <option value="Class 7">7th</option>
+      <option value="Class 8">8th</option>
+      <option value="Class 9">9th</option>
+      <option value="Class 10">10th</option>
+      <option value="Class 11">11th</option>
+      <option value="Class 12">12th</option>
+    </select>
+    <button onclick="loadStudents()">Show</button>
+  </div>
+
+  <div id="studentsContainer" class="students-grid"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCIjL0gWAAe-kd1jcbqZeWqSbHj4Yi9jDI",
+  authDomain: "rhkic-bandiya.firebaseapp.com",
+  databaseURL: "https://rhkic-bandiya-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "rhkic-bandiya",
+  storageBucket: "rhkic-bandiya.firebasestorage.app",
+  messagingSenderId: "1050448660999",
+  appId: "1:1050448660999:web:111aade54c5392df6a78a2"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+onAuthStateChanged(auth, async user => {
+  if(!user) return window.location.href = 'auth.html';
+  try{
+    const snap = await get(ref(db, 'users/' + user.uid));
+    console.log('operator auth check: uid=', user.uid, 'usersRecord=', snap.exists() ? snap.val() : null);
+    if(!snap.exists()){
+      alert('Access denied: no user record found. Please ensure your account has a /users/<your-uid> record with role="operator". If you are the principal, set this in the Firebase Console or create an operator account via the Sign up form.');
+      return window.location.href = 'index.html';
+    }
+    if(snap.val().role !== 'operator'){
+      alert('Access denied: your account is not an operator. To get operator access either: (1) Sign up as operator using the Operator PIN set by the principal, or (2) ask the principal to update your role to "operator" in the Realtime Database.');
+      return window.location.href = 'index.html';
+    }
+  }catch(err){
+    console.error('operator auth check error', err);
+    alert('Failed to verify operator access — check console for details.');
+    return window.location.href = 'index.html';
+  }
+});
+
+window.logout = () => signOut(auth).then(()=>window.location.href='index.html');
+
+export async function loadStudents(){
+  try{
+    const cls = document.getElementById('classSelect').value;
+    const snap = await get(ref(db, 'users/'));
+    const container = document.getElementById('studentsContainer');
+    container.innerHTML = '';
+    if(!snap.exists()) return;
+    const users = snap.val();
+    const students = Object.values(users).filter(u => u.role === 'student');
+    const filtered = cls === 'all' ? students : students.filter(s => (s.student && s.student.class) === cls || s.class === cls);
+    filtered.forEach(s => {
+      const stu = s.student || {};
+      const card = document.createElement('div'); card.className='card';
+      const photo = stu.photo || '';
+      card.innerHTML = `
+        <img class=\"photo\" src=\"${photo || 'https://via.placeholder.com/300x200?text=No+Photo'}\" alt=\"photo\" />
+        <h4 style=\"margin:6px 0 2px 0\">${escapeHtml(stu.fullName || s.email || 'Student')}</h4>
+        <div style=\"font-size:13px;opacity:0.9;margin-bottom:6px\">Class: ${escapeHtml(stu.class || '')}</div>
+        <div style=\"display:flex;gap:8px;flex-wrap:wrap\">
+          <button onclick=\"markFree('${s.email}')\">Mark Free</button>
+          <button onclick=\"viewDetails('${s.email}')\">View</button>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+  }catch(e){ console.error('loadStudents', e); alert('Failed to load students - see console.'); }
+}
+
+function escapeHtml(str){ if(!str) return ''; return String(str).replace(/[&<>\"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+async function markFree(email){
+  try{
+    // find user by email
+    const snap = await get(ref(db, 'users/'));
+    if(!snap.exists()) return alert('No users');
+    const users = snap.val();
+    const entry = Object.entries(users).find(([uid,u]) => u.email === email);
+    if(!entry) return alert('User not found');
+    const uid = entry[0];
+    await set(ref(db, 'users/' + uid + '/student/free'), true);
+    alert('Marked free');
+    loadStudents();
+  }catch(e){ console.error(e); alert('Failed to mark free'); }
+}
+
+function viewDetails(email){ alert('Open details for ' + email + ' (not implemented)'); }
+
+// expose loadStudents for button onclick
+window.loadStudents = loadStudents;
+</script>
+</body>
+</html>

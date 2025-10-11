@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RIZWAN HUSAIN KADRI INTER COLLEGE BANDIYA</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    body { background: linear-gradient(to bottom right, #D32F2F, #FBC02D, #6D4C41); color: white; }
+
+    header {
+      background: #D32F2F;
+      text-align: center;
+      padding: 15px;
+      font-size: 22px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    nav {
+      background: #6D4C41;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      padding: 10px;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    nav a:hover {
+      color: #FBC02D;
+    }
+
+    .container {
+      text-align: center;
+      padding: 30px;
+    }
+
+    .logo {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 4px solid yellow;
+      margin-bottom: 15px;
+    }
+
+    .title {
+      font-size: 26px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      font-style: italic;
+      margin-bottom: 30px;
+    }
+
+    .card-section {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .card {
+      background: white;
+      color: black;
+      padding: 20px;
+      border-radius: 15px;
+      width: 250px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+
+    .card img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 4px solid #D32F2F;
+      object-fit: cover;
+      margin-bottom: 10px;
+    }
+
+    .login-section {
+      margin-top: 40px;
+      text-align: center;
+    }
+
+    .login-section input {
+      padding: 10px;
+      width: 220px;
+      margin: 10px;
+      border: none;
+      border-radius: 5px;
+    }
+
+    .login-section button {
+      padding: 10px 20px;
+      border: none;
+      background: #FBC02D;
+      color: black;
+      font-weight: bold;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .login-section button:hover {
+      background: #FFD600;
+    }
+
+    footer {
+      background: #6D4C41;
+      text-align: center;
+      padding: 10px;
+      margin-top: 30px;
+      font-size: 14px;
+    }
+
+    .notice-board {
+      background: rgba(255,255,255,0.1);
+      padding: 20px;
+      margin-top: 40px;
+      border-radius: 10px;
+      backdrop-filter: blur(6px);
+    }
+
+    .notice-board h2 {
+      margin-bottom: 15px;
+      color: yellow;
+    }
+
+    .notice-board {
+      position: relative;
+      overflow: hidden;
+    }
+    .notice-board .marquee {
+      height: 160px; /* visible area */
+      overflow: hidden;
+      position: relative;
+    }
+    .notice-board .marquee-content {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: absolute;
+      width: 100%;
+      top: -100%;
+      animation: marqueeDown linear infinite;
+    }
+    .notice-item {
+      background: rgba(0,0,0,0.05);
+      padding: 8px 12px;
+      border-radius: 6px;
+      color: #fff;
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:center;
+    }
+    .notice-meta { font-size:12px; opacity:0.85 }
+    @keyframes marqueeDown {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(100%); }
+    }
+    /* Pause on hover */
+    .notice-board .marquee:hover .marquee-content { animation-play-state: paused; }
+  </style>
+</head>
+<body>
+
+
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="auth.html">Login</a>
+    <a href="student.html">Homework</a>
+    <a href="admin.html">Notices</a>
+  </nav>
+
+  <div class="container">
+    <img src="https://i.ibb.co/B2vqLzRn/android-chrome-192x192.png" alt="School Logo" class="logo">
+    <h1 class="title">Welcome to RHK Inter College</h1>
+    <p class="subtitle">"Education for Excellence"</p>
+
+    <div class="card-section">
+      <div class="card">
+        <img src="https://i.ibb.co/3YYpfBvp/android-chrome-192x192.png" alt="Principal">
+        <h3>Principal</h3>
+        <p>Mr. Irfan Husain</p>
+      </div>
+
+      <div class="card">
+        <img src="https://i.ibb.co/G4p5KjnN/MANAGER.png" alt="Manager">
+        <h3>Manager</h3>
+        <p>Mr. Rizwan Husain Kadri</p>
+      </div>
+    </div>
+
+    <div class="login-section">
+      <h2>Login Panel</h2>
+      <input type="email" id="email" placeholder="Enter Email"><br>
+      <input type="password" id="password" placeholder="Enter Password"><br>
+      <button onclick="login()">Login</button>
+  <p style="margin-top:10px;">New user? <a href="auth.html#loginBlock" style="color:yellow;">Sign Up</a></p>
+    </div>
+
+    <div class="notice-board">
+      <h2>📢 Latest Homework & Notices</h2>
+      <div class="marquee">
+        <div id="marqueeContent" class="marquee-content">
+          <!-- Items injected here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>© 2025 RIZWAN HUSAIN KADRI INTER COLLEGE BANDIYA | All Rights Reserved</footer>
+
+  <!-- Firebase SDKs -->
+  <script type="module">
+    // Import Firebase SDKs
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } 
+      from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+    // Your Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCIjL0gWAAe-kd1jcbqZeWqSbHj4Yi9jDI",
+      authDomain: "rhkic-bandiya.firebaseapp.com",
+      databaseURL: "https://rhkic-bandiya-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "rhkic-bandiya",
+      storageBucket: "rhkic-bandiya.firebasestorage.app",
+      messagingSenderId: "1050448660999",
+      appId: "1:1050448660999:web:111aade54c5392df6a78a2"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+  const db = getDatabase(app);
+
+    // Login Function
+    async function login() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      if (email === "" || password === "") {
+        alert("Please fill all fields!");
+        return;
+      }
+
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        alert("Login successful!");
+        window.location.href = "dashboard.html"; // redirect after login
+      } catch (error) {
+        alert("Login Failed: " + error.message);
+      }
+    }
+
+    // Signup Function
+    async function signup() {
+      const email = prompt("Enter your email:");
+      const password = prompt("Enter a password (min 6 chars):");
+
+      if (!email || !password) {
+        alert("Signup cancelled or invalid input");
+        return;
+      }
+
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        alert("Signup successful! You can now login.");
+      } catch (error) {
+        alert("Signup Failed: " + error.message);
+      }
+    }
+
+    // Make functions available globally
+    window.login = login;
+    window.signup = signup;
+
+    // Load notices & homeworks from Realtime Database and render in noticeList
+    function renderNoticeItems(items){
+      const list = document.getElementById('noticeList');
+      list.innerHTML = '';
+      if(!items || Object.keys(items).length === 0){
+        list.innerHTML = '<li>No current notices</li>';
+        return;
+      }
+      // items may be an object or array
+      Object.entries(items).forEach(([key, val]) => {
+        // val can be string or object
+        const li = document.createElement('li');
+        if(typeof val === 'string') li.textContent = val;
+        else if(val.class && val.text) li.textContent = `${val.class}: ${val.text} ${val.date? '('+val.date+')':''}`;
+        else if(val.title && val.message) li.textContent = `${val.title} - ${val.message}`;
+        else li.textContent = JSON.stringify(val);
+        list.appendChild(li);
+      });
+    }
+
+    function loadNoticesAndHomeworks(){
+      // Notices node (optional)
+      try{
+        const noticesRef = ref(db, 'notices');
+        onValue(noticesRef, snapshot => {
+          const val = snapshot.val();
+          if(val) renderNoticeItems(val);
+          else {
+            // fallback: also check 'homework' node
+            const hwRef = ref(db, 'homework');
+            onValue(hwRef, hwSnap => {
+              const hwVal = hwSnap.val();
+              if(hwVal) renderNoticeItems(hwVal);
+              else {
+                // leave a default message
+                const list = document.getElementById('noticeList');
+                if(list) list.innerHTML = '<li>No current notices</li>';
+              }
+            });
+          }
+        });
+      }catch(e){ console.error('loadNotices error', e); }
+    }
+
+    // start loading notices on page load
+    loadNoticesAndHomeworks();
+
+    // New: combine notices and homework into a single feed with source tagging and sorting
+    function normalizeNotices(obj, source){
+      if(!obj) return [];
+      return Object.entries(obj).map(([key, val]) => {
+        const item = { id: key, source };
+        if(typeof val === 'string'){
+          item.text = val;
+          item.title = '';
+        } else if(val.title || val.message){
+          item.title = val.title || '';
+          item.text = val.message || '';
+        } else if(val.text || val.class){
+          item.title = val.class || '';
+          item.text = val.text || '';
+        } else {
+          item.text = JSON.stringify(val);
+        }
+        // use provided date or server timestamp field
+        item.date = val.date || val.createdAt || '';
+        // use creator info if present
+        item.creator = val.creator || val.creatorUid || val.creatorRole || '';
+        return item;
+      });
+    }
+
+    // Fetch both nodes once and render combined feed
+    import { get, child } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+    async function loadCombinedFeed(){
+      try{
+        const rootRef = ref(db, '/');
+        const snap = await get(rootRef);
+        const v = snap.val() || {};
+        const notices = v.notices || {};
+        const hw = v.homework || {};
+        const normalized = [...normalizeNotices(notices, 'Admin/Teacher'), ...normalizeNotices(hw, 'Teacher')];
+        // sort by date if available (descending recent first)
+        normalized.sort((a,b)=>{
+          const da = a.date ? new Date(a.date) : 0;
+          const dbb = b.date ? new Date(b.date) : 0;
+          return dbb - da;
+        });
+        renderMarquee(normalized);
+      }catch(e){ console.error('loadCombinedFeed', e); }
+    }
+
+    function renderMarquee(items){
+      const content = document.getElementById('marqueeContent');
+      if(!content) return;
+      content.innerHTML = '';
+      if(!items || items.length===0){
+        const el = document.createElement('div'); el.className='notice-item'; el.textContent='No current notices'; content.appendChild(el); return;
+      }
+      items.forEach(it=>{
+        const el = document.createElement('div'); el.className='notice-item';
+        const left = document.createElement('div');
+        left.innerHTML = `<strong>${escapeHtml(it.title || 'Notice')}</strong><div>${escapeHtml(it.text)}</div>`;
+        const meta = document.createElement('div'); meta.className='notice-meta';
+        meta.innerHTML = `${escapeHtml(it.source)} ${it.creator? '• '+escapeHtml(it.creator):''} ${it.date? '• '+escapeHtml(it.date):''}`;
+        el.appendChild(left); el.appendChild(meta);
+        content.appendChild(el);
+      });
+      // adjust animation duration based on total items
+      const itemCount = items.length;
+      const duration = Math.max(8, itemCount * 3); // seconds
+      content.style.animationDuration = duration + 's';
+    }
+
+    // build combined feed initially and on updates
+    loadCombinedFeed();
+    // also update whenever notices or homework change
+    onValue(ref(db, 'notices'), () => loadCombinedFeed());
+    onValue(ref(db, 'homework'), () => loadCombinedFeed());
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RHKIC Teacher Dashboard</title>
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(to bottom right, #D32F2F, #FBC02D, #6D4C41);
+    color: white;
+    padding: 20px;
+  }
+  h1 { text-align: center; }
+  button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background: #FBC02D;
+    color: black;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  button:hover { background: #FFD600; }
+  .section {
+    background: rgba(255,255,255,0.1);
+    padding: 15px;
+    border-radius: 10px;
+    backdrop-filter: blur(5px);
+    margin-top: 20px;
+  }
+  input, select { padding: 10px; margin: 10px 0; width: 80%; border-radius: 5px; border:none; }
+  ul { list-style: none; padding-left: 0; }
+  li { padding: 5px 0; border-bottom: 1px solid white; }
+</style>
+</head>
+<body>
+  <!-- Top header with logo -->
+  <div style="display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:12px;">
+    <a href="index.html" style="display:inline-block;">
+      <img src="logooooo.png" alt="RHKIC Logo" style="width:64px;height:64px;border-radius:8px;object-fit:cover;">
+    </a>
+    <div style="font-weight:700;font-size:18px;color:#fff;">RHKIC BANDIYA</div>
+  </div>
+
+<h1>👨‍🏫 Teacher Dashboard</h1>
+<div style="display:flex;gap:8px;align-items:center;justify-content:center;margin-bottom:10px;">
+  <a href="index.html" style="color:yellow;font-weight:bold;text-decoration:none;">Home</a>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<div class="section">
+  <h2>Upload Homework</h2>
+  <input type="text" id="homeworkText" placeholder="Enter homework description">
+  <select id="classSelect">
+    <option value="Class 6">Class 6</option>
+    <option value="Class 7">Class 7</option>
+    <option value="Class 8">Class 8</option>
+    <option value="Class 9">Class 9</option>
+    <option value="Class 10">Class 10</option>
+    <option value="Class 11">Class 11</option>
+    <option value="Class 12">Class 12</option>
+  </select>
+  <button id="addHomeworkBtn" onclick="addHomework()">Add Homework</button>
+</div>
+
+<div class="section">
+  <h2>Existing Homework</h2>
+  <ul id="homeworkList"></ul>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import { getDatabase, ref, set, push, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyCIjL0gWAAe-kd1jcbqZeWqSbHj4Yi9jDI",
+  authDomain: "rhkic-bandiya.firebaseapp.com",
+  databaseURL: "https://rhkic-bandiya-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "rhkic-bandiya",
+  storageBucket: "rhkic-bandiya.firebasestorage.app",
+  messagingSenderId: "1050448660999",
+  appId: "1:1050448660999:web:111aade54c5392df6a78a2"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+// Check login & role
+onAuthStateChanged(auth, async (user) => {
+  if(!user) window.location.href = "auth.html";
+
+  const uid = user.uid;
+  const snapshot = await get(ref(db, "users/" + uid));
+  console.log('onAuthStateChanged: uid=', uid, 'usersSnapshot=', snapshot.exists() ? snapshot.val() : null);
+  if(snapshot.exists()){
+    const role = snapshot.val().role;
+    if(role !== "teacher"){
+      alert("Access denied! Only teachers can view this page.");
+      window.location.href = "index.html";
+    }
+  } else {
+    alert("No user data found!");
+    window.location.href = "auth.html";
+  }
+
+  // Load existing homework
+  loadHomework();
+});
+
+// Logout
+window.logout = () => {
+  signOut(auth).then(() => window.location.href = "index.html");
+};
+
+// Add homework
+window.addHomework = async () => {
+  const input = document.getElementById("homeworkText");
+  const text = (input.value || "").trim();
+  const className = document.getElementById("classSelect").value;
+  if(text === "") return alert("Please enter homework");
+
+  const addBtn = document.getElementById('addHomeworkBtn');
+  addBtn.disabled = true;
+  addBtn.innerText = 'Adding...';
+  try{
+    // debug: log current user's role data (helps troubleshoot rules relying on users/<uid>/role)
+    try{
+      const user = auth.currentUser;
+      if(user){
+        const uSnap = await get(ref(db, 'users/' + user.uid));
+        console.log('addHomework: currentUser uid=', user.uid, 'usersRecord=', uSnap.exists() ? uSnap.val() : null);
+      } else console.log('addHomework: no auth.currentUser');
+    }catch(e){ console.warn('addHomework: error reading users/uid', e); }
+    const hwRef = ref(db, "homework/");
+    const newHWRef = push(hwRef);
+    await set(newHWRef, {
+      text: text,
+      class: className,
+      date: new Date().toLocaleDateString(),
+      createdAt: new Date().toISOString()
+    });
+
+    input.value = "";
+    await loadHomework();
+    alert('Homework added');
+  }catch(err){
+    console.error('addHomework error', err);
+    alert('Error adding homework: ' + (err && err.message ? err.message : err));
+  }finally{
+    addBtn.disabled = false;
+    addBtn.innerText = 'Add Homework';
+  }
+}
+
+// Load existing homework
+async function loadHomework(){
+  try{
+    const snapshot = await get(ref(db, "homework/"));
+    const list = document.getElementById("homeworkList");
+    list.innerHTML = "";
+    if(snapshot.exists()){
+      const homework = snapshot.val();
+      const arr = Object.entries(homework).map(([id, val]) => ({ id, ...val }));
+      arr.sort((a,b)=>{
+        const da = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dbb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return dbb - da;
+      });
+      arr.forEach(hw => {
+        const li = document.createElement("li");
+        const cls = hw.class || 'N/A';
+        const text = hw.text || JSON.stringify(hw);
+        const date = hw.date || (hw.createdAt ? new Date(hw.createdAt).toLocaleDateString() : '');
+        li.innerText = `[${cls}] ${text} ${date ? '('+date+')' : ''}`;
+        list.appendChild(li);
+      });
+    }
+  }catch(err){
+    console.error('loadHomework error', err);
+  }
+}
+</script>
+
+</body>
+</html>

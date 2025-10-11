@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RHKIC Admin Dashboard</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to bottom right, #D32F2F, #FBC02D, #6D4C41);
+      color: white;
+      padding: 20px;
+    }
+    h1 { text-align: center; }
+    button { 
+      padding: 10px 20px; 
+      border: none; 
+      border-radius: 5px; 
+      cursor: pointer; 
+      background: #FBC02D; 
+      color: black; 
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    button:hover { background: #FFD600; }
+    .user-list {
+      margin-top: 20px;
+      background: rgba(255,255,255,0.1);
+      padding: 15px;
+      border-radius: 10px;
+      backdrop-filter: blur(5px);
+    }
+    .user-list table {
+      width: 100%;
+      border-collapse: collapse;
+      color: white;
+    }
+    .user-list th, .user-list td {
+      padding: 10px;
+      border: 1px solid #fff;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+  <!-- Top header with logo -->
+  <div style="display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:12px;">
+    <a href="index.html" style="display:inline-block;">
+      <img src="logooooo.png" alt="RHKIC Logo" style="width:64px;height:64px;border-radius:8px;object-fit:cover;">
+    </a>
+    <div style="font-weight:700;font-size:18px;color:#fff;">RHKIC BANDIYA</div>
+  </div>
+
+<h1>👨‍💼 Principal Dashboard</h1>
+<div style="display:flex;gap:8px;align-items:center;justify-content:center;margin-bottom:10px;">
+  <a href="index.html" style="color:yellow;font-weight:bold;text-decoration:none;">Home</a>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<div class="user-list">
+  <h2>Registered Users</h2>
+  <table id="usersTable">
+    <tr>
+      <th>Email</th>
+      <th>Role</th>
+    </tr>
+  </table>
+</div>
+
+<!-- Students panel for principal -->
+<div class="user-list" style="margin-top:18px;">
+  <h2 style="cursor:pointer;" onclick="toggleStudentsPanel()">Students Panel ▾</h2>
+  <div id="studentsPanel" style="display:none;">
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">
+      <label style="min-width:80px;">Filter class:</label>
+      <select id="studentClassFilter" onchange="loadStudentsByClass(this.value)">
+        <option value="all">All classes</option>
+        <option value="Class 1">1st</option>
+        <option value="Class 2">2nd</option>
+        <option value="Class 3">3rd</option>
+        <option value="Class 4">4th</option>
+        <option value="Class 5">5th</option>
+        <option value="Class 6">6th</option>
+        <option value="Class 7">7th</option>
+        <option value="Class 8">8th</option>
+        <option value="Class 9">9th</option>
+        <option value="Class 10">10th</option>
+        <option value="Class 11">11th</option>
+        <option value="Class 12">12th</option>
+      </select>
+      <button onclick="loadStudentsByClass(document.getElementById('studentClassFilter').value)">Show</button>
+    </div>
+
+    <div style="overflow:auto;">
+      <table id="studentsTable" style="width:100%; border-collapse:collapse; color:white;">
+        <thead>
+          <tr>
+            <th style="padding:8px;border:1px solid #fff">Name</th>
+            <th style="padding:8px;border:1px solid #fff">Father</th>
+            <th style="padding:8px;border:1px solid #fff">Mother</th>
+            <th style="padding:8px;border:1px solid #fff">Class</th>
+            <th style="padding:8px;border:1px solid #fff">Mobile</th>
+            <th style="padding:8px;border:1px solid #fff">WhatsApp</th>
+            <th style="padding:8px;border:1px solid #fff">Email</th>
+            <th style="padding:8px;border:1px solid #fff">Address</th>
+          </tr>
+        </thead>
+        <tbody id="studentsTbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="notice-board">
+  <h2>Add Notice / Announcement</h2>
+  <input type="text" id="noticeText" placeholder="Enter notice" style="width:80%; padding:10px;">
+  <button id="addNoticeBtn" onclick="addNotice()">Add Notice</button>
+
+  <ul id="noticeList" style="margin-top:15px;"></ul>
+</div>
+
+<div class="role-pin" style="margin-top:20px;background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;">
+  <h3>Principal: Set Role PINs</h3>
+  <div style="display:flex;gap:8px;align-items:center;justify-content:center;">
+    <input id="teacherPin" placeholder="Teacher PIN" style="padding:8px;" />
+    <button onclick="setRolePin('teacher')">Set Teacher PIN</button>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;justify-content:center;margin-top:8px;">
+    <input id="adminPin" placeholder="Admin PIN" style="padding:8px;" />
+    <button onclick="setRolePin('admin')">Set Admin PIN</button>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;justify-content:center;margin-top:8px;">
+    <input id="operatorPin" placeholder="Operator PIN" style="padding:8px;" />
+    <button onclick="setRolePin('operator')">Set Operator PIN</button>
+  </div>
+  <p style="margin-top:8px;font-size:13px;opacity:0.9">Current: Teacher PIN - <span id="curTeacherPin">(not set)</span>, Admin PIN - <span id="curAdminPin">(not set)</span></p>
+  <div style="margin-top:12px;border-top:1px dashed rgba(255,255,255,0.06);padding-top:10px;">
+    <h4 style="margin:6px 0">Quick admin actions</h4>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <input id="promoteEmail" placeholder="User email or UID" style="padding:8px;flex:1;" />
+      <button onclick="promoteUserToOperator()">Promote to Operator</button>
+    </div>
+    <p style="font-size:12px;opacity:0.85;margin-top:6px;">Enter the user's email (recommended) or UID and click Promote — this will create or update <code>/users/&lt;uid&gt;</code> with role='operator'.</p>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import { getDatabase, ref, get, set, push, child } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyCIjL0gWAAe-kd1jcbqZeWqSbHj4Yi9jDI",
+  authDomain: "rhkic-bandiya.firebaseapp.com",
+  databaseURL: "https://rhkic-bandiya-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "rhkic-bandiya",
+  storageBucket: "rhkic-bandiya.firebasestorage.app",
+  messagingSenderId: "1050448660999",
+  appId: "1:1050448660999:web:111aade54c5392df6a78a2"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+// ✅ Check login & role
+onAuthStateChanged(auth, async (user) => {
+  if(!user) window.location.href = "auth.html";
+
+  const uid = user.uid;
+  const snapshot = await get(ref(db, "users/" + uid));
+  console.log('onAuthStateChanged/admin: uid=', uid, 'usersSnapshot=', snapshot.exists() ? snapshot.val() : null);
+  if(snapshot.exists()){
+    const role = snapshot.val().role;
+    if(role !== "admin"){
+      alert("Access denied! Only admin can view this page.");
+      window.location.href = "index.html";
+    }
+  } else {
+    alert("No user data found!");
+    window.location.href = "auth.html";
+  }
+
+  // Load all users
+  loadUsers();
+  loadNotices();
+  // prepare students panel
+  // populate class filter default (students can be loaded when expanded)
+  // no auto-load to avoid heavy reads; admin can click Show
+  
+});
+
+// Logout
+window.logout = () => {
+  signOut(auth).then(() => window.location.href = "index.html");
+};
+
+// Load users table
+async function loadUsers(){
+  const snapshot = await get(ref(db, "users/"));
+  const table = document.getElementById("usersTable");
+
+  if(snapshot.exists()){
+    const users = snapshot.val();
+    Object.keys(users).forEach(uid => {
+      const row = table.insertRow();
+      const emailCell = row.insertCell(0);
+      const roleCell = row.insertCell(1);
+      emailCell.innerText = users[uid].email;
+      roleCell.innerText = users[uid].role;
+    });
+  }
+}
+
+// Students panel helpers
+window.toggleStudentsPanel = () => {
+  const el = document.getElementById('studentsPanel');
+  if(!el) return;
+  el.style.display = (el.style.display === 'none' || el.style.display === '') ? 'block' : 'none';
+  // when opening, load all students by default
+  if(el.style.display === 'block') loadStudentsByClass(document.getElementById('studentClassFilter').value || 'all');
+}
+
+async function loadStudentsByClass(className = 'all'){
+  try{
+    const snapshot = await get(ref(db, 'users/'));
+    const tbody = document.getElementById('studentsTbody');
+    tbody.innerHTML = '';
+    if(!snapshot.exists()) return;
+    const users = snapshot.val();
+    const students = Object.values(users).filter(u => u.role === 'student');
+    const filtered = className === 'all' ? students : students.filter(s => (s.student && s.student.class) === className || s.class === className || (s.student && s.student.class === className));
+    // render rows
+    filtered.forEach(s => {
+      const tr = document.createElement('tr');
+      const student = s.student || {};
+      const name = student.fullName || s.email || '';
+      const father = student.fatherName || '';
+      const mother = student.motherName || '';
+      const cls = student.class || s.class || '';
+      const mobile = student.mobile || '';
+      const whatsapp = student.whatsapp || '';
+      const email = s.email || '';
+      const address = student.address || '';
+
+      tr.innerHTML = `
+        <td style="padding:8px;border:1px solid #fff">${escapeHtml(name)}</td>
+        <td style="padding:8px;border:1px solid #fff">${escapeHtml(father)}</td>
+        <td style="padding:8px;border:1px solid #fff">${escapeHtml(mother)}</td>
+        <td style="padding:8px;border:1px solid #fff">${escapeHtml(cls)}</td>
+        <td style="padding:8px;border:1px solid #fff">${escapeHtml(mobile)}</td>
+        <td style="padding:8px;border:1px solid #fff">${escapeHtml(whatsapp)}</td>
+        <td style="padding:8px;border:1px solid #fff">${escapeHtml(email)}</td>
+        <td style="padding:8px;border:1px solid #fff">${escapeHtml(address)}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }catch(err){ 
+    console.error('loadStudentsByClass', err);
+    // show a helpful message for permission problems
+    if(err && err.code && err.code.includes('permission')){
+      alert('Permission denied reading /users/. Check your Realtime Database rules to allow admin to read user records.');
+    } else if(err && err.message && err.message.toLowerCase().includes('permission')){
+      alert('Permission denied reading /users/. Check your Realtime Database rules to allow admin to read user records.');
+    } else {
+      // generic
+      alert('Failed to load students. See console for details.');
+    }
+  }
+}
+
+
+// small escape helper to prevent HTML injection
+function escapeHtml(str){
+  if(!str) return '';
+  return String(str).replace(/[&<>\"]/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];
+  });
+}
+
+// Add notice
+window.addNotice = async () => {
+  const noticeInput = document.getElementById("noticeText");
+  const noticeText = (noticeInput.value || "").trim();
+  if(noticeText === "") return alert("Please enter a notice");
+
+  const addBtn = document.getElementById('addNoticeBtn');
+  addBtn.disabled = true;
+  addBtn.innerText = 'Adding...';
+  try{
+    const noticesRef = ref(db, "notices/");
+    const newNoticeRef = push(noticesRef);
+    // include a timestamp and (optionally) creator info for future sorting
+    await set(newNoticeRef, { text: noticeText, createdAt: new Date().toISOString() });
+
+    noticeInput.value = "";
+    await loadNotices();
+    alert('Notice added');
+  }catch(err){
+    console.error('addNotice error', err);
+    alert('Error adding notice: ' + (err && err.message ? err.message : err));
+  }finally{
+    addBtn.disabled = false;
+    addBtn.innerText = 'Add Notice';
+  }
+}
+
+// Load notices
+async function loadNotices(){
+  try{
+    const snapshot = await get(ref(db, "notices/"));
+    const list = document.getElementById("noticeList");
+    list.innerHTML = "";
+    if(snapshot.exists()){
+      const notices = snapshot.val();
+      // normalize to array and sort by createdAt desc if present
+      const arr = Object.entries(notices).map(([key,val])=>({ id:key, ...val }));
+      arr.sort((a,b)=>{
+        const da = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dbb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return dbb - da;
+      });
+      arr.forEach(n => {
+        const li = document.createElement("li");
+        if(n.text) li.innerText = n.text + (n.createdAt ? (' — ' + new Date(n.createdAt).toLocaleString()) : '');
+        else li.innerText = JSON.stringify(n);
+        list.appendChild(li);
+      });
+    }
+  }catch(err){
+    console.error('loadNotices error', err);
+  }
+}
+
+// Role PIN management
+window.setRolePin = async (role) => {
+  const val = document.getElementById(role + 'Pin').value;
+  if(!val) return alert('Enter PIN');
+  try{
+    await set(ref(db, 'rolePins/' + role), { pin: val });
+    alert('PIN set for ' + role);
+    loadRolePins();
+  }catch(err){ alert('Error setting PIN: '+err.message); }
+}
+
+async function loadRolePins(){
+  try{
+    const snapT = await get(ref(db, 'rolePins/teacher'));
+    const snapA = await get(ref(db, 'rolePins/admin'));
+    const snapO = await get(ref(db, 'rolePins/operator'));
+    document.getElementById('curTeacherPin').innerText = snapT.exists() ? '••••' : '(not set)';
+    document.getElementById('curAdminPin').innerText = snapA.exists() ? '••••' : '(not set)';
+    // create operator status element if missing
+    let curOp = document.getElementById('curOperatorPin');
+    if(!curOp){
+      const p = document.createElement('p');
+      p.style.marginTop = '6px'; p.style.fontSize='13px'; p.style.opacity='0.9';
+      p.id = 'curOperatorPinWrapper';
+      p.innerHTML = 'Operator PIN - <span id="curOperatorPin">' + (snapO.exists() ? '••••' : '(not set)') + '</span>';
+      document.querySelector('.role-pin').appendChild(p);
+    } else {
+      curOp.innerText = snapO.exists() ? '••••' : '(not set)';
+    }
+  }catch(err){ console.error('loadRolePins', err); }
+}
+
+// call loadRolePins after initial load
+loadRolePins();
+
+// Admin helper: promote a user (by email or UID) to operator role
+window.promoteUserToOperator = async () => {
+  const val = document.getElementById('promoteEmail').value.trim();
+  if(!val) return alert('Enter an email or UID to promote');
+  try{
+    // try to detect email format
+    let uid = null;
+    const snapshot = await get(ref(db, 'users/'));
+    if(snapshot.exists()){
+      const users = snapshot.val();
+      // search by email
+      for(const [k,v] of Object.entries(users)){
+        if(v.email && v.email.toLowerCase() === val.toLowerCase()) { uid = k; break; }
+      }
+    }
+    // if not found by email and input looks like a uid, use it
+    if(!uid && val.length > 10) uid = val;
+    if(!uid) return alert('Could not find user by email; provide exact UID for direct promote');
+
+    // fetch existing record (if any)
+    const userSnap = await get(ref(db, 'users/' + uid));
+    const record = userSnap.exists() ? userSnap.val() : {};
+    // preserve email if present, otherwise keep as-is
+    const email = record.email || (val.includes('@') ? val : '');
+    const updated = { ...record, email, role: 'operator', promotedAt: new Date().toISOString() };
+    await set(ref(db, 'users/' + uid), updated);
+    alert('User promoted to operator (uid: ' + uid + ')');
+    loadRolePins();
+  }catch(err){ console.error('promoteUserToOperator', err); alert('Failed to promote user — see console'); }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MD GURUKUL — Live Class</title>
+<style>
+  :root{--bg:#0d1117;--card:#161b22;--muted:#c9d1d9;--accent:#ffbf00}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Segoe UI,system-ui,-apple-system,Roboto,"Helvetica Neue",Arial;background:var(--bg);color:var(--muted);}
+  .wrap{max-width:1100px;margin:24px auto;padding:20px}
+  header{display:flex;align-items:center;justify-content:space-between;padding:10px 0}
+  h1{color:var(--accent);margin:0}
+  .hero{background:linear-gradient(135deg,#161b22,#0d1117);padding:18px;border-radius:12px;margin-bottom:18px}
+  .hero p{margin:6px 0 0;color:#bfc8d3}
+  .card{background:var(--card);padding:14px;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.45)}
+  .grid{display:grid;grid-template-columns:1fr;gap:16px}
+  .controls{display:flex;gap:10px;align-items:center;margin-top:12px}
+  .btn{background:var(--accent);color:#0d1117;padding:10px 12px;border-radius:8px;border:none;cursor:pointer;font-weight:700}
+  .input{width:100%;padding:10px;border-radius:8px;border:1px solid #30363d;background:#0d1117;color:var(--muted)}
+  .videoWrap{height:560px;border-radius:10px;overflow:hidden;background:#000;border:1px solid #222}
+  iframe{width:100%;height:100%;border:0;display:block}
+  .status{padding:8px;border-radius:8px;background:#0e1419;color:#9fb7d1;margin-top:8px}
+  .muted{color:#9fb7d1;font-size:13px}
+  footer{margin-top:18px;text-align:center;color:#8899aa;font-size:13px}
+  @media(min-width:980px){ .grid{grid-template-columns:360px 1fr} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>MD GURUKUL</h1>
+      <div class="muted">Live classroom — Auto-embed (YouTube Unlisted recommended)</div>
+    </div>
+    <div class="muted">Ready-to-use live page</div>
+  </header>
+
+  <section class="hero card">
+    <strong style="color:var(--accent);font-size:18px">Live Class — Public Page + Unlisted YouTube</strong>
+    <p>Students will open this page to watch your live class. YouTube stream should be <strong>Unlisted</strong> for privacy.</p>
+  </section>
+
+  <div class="grid">
+    <!-- Left column: setup -->
+    <div class="card">
+      <h3 style="margin:0 0 8px;color:var(--accent)">One-time setup (optional)</h3>
+
+      <label class="muted" for="apiKey">YouTube API Key (optional — enables auto-detect)</label>
+      <input id="apiKey" class="input" placeholder="Paste API key here (AIza...)" />
+
+      <label class="muted" for="channelId" style="margin-top:8px">Channel ID</label>
+      <input id="channelId" class="input" value="UCRh_MHpdDo9zHwxa9Xu_t2w" />
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button id="saveBtn" class="btn">Save</button>
+        <button id="clearBtn" class="btn" style="background:#444;color:var(--muted)">Clear</button>
+      </div>
+      <div class="muted" style="margin-top:10px">If you don't want to use API keys, simply paste the live YouTube URL or ID in Manual Start below.</div>
+
+      <hr style="border:none;border-top:1px solid #20262b;margin:14px 0">
+
+      <h3 style="margin:0 0 8px;color:var(--accent)">Manual Start</h3>
+      <label class="muted" for="manual">YouTube Live URL or Video ID</label>
+      <input id="manual" class="input" placeholder="https://youtu.be/VIDEOID or VIDEOID" />
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button id="startManual" class="btn">Start</button>
+        <button id="stop" class="btn" style="background:#444;color:var(--muted)">Stop</button>
+      </div>
+
+      <div class="muted" style="margin-top:12px">Recommended: Keep your stream <strong>Unlisted</strong> on YouTube and paste the URL here once you start streaming. The page will embed the live video.</div>
+
+    </div>
+
+    <!-- Right column: player -->
+    <div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><strong class="muted">Live Player</strong></div>
+          <div id="liveBadge" style="display:none;background:#b21;color:#fff;padding:6px 10px;border-radius:8px;font-weight:700">LIVE</div>
+        </div>
+
+        <div class="videoWrap" id="playerArea">
+          <div id="placeholder" style="color:#888;text-align:center;padding-top:220px">No live stream detected. Start manual or provide API Key + Channel ID and go live on YouTube.</div>
+        </div>
+
+        <div class="controls" style="margin-top:12px">
+          <div style="width:200px">
+            <label class="muted">Volume</label>
+            <input id="vol" type="range" min="0" max="100" value="100" style="width:100%" />
+          </div>
+          <div style="width:200px">
+            <label class="muted">Brightness</label>
+            <input id="brightness" type="range" min="0.5" max="2" step="0.05" value="1" style="width:100%" />
+          </div>
+          <div style="width:200px">
+            <label class="muted">Contrast</label>
+            <input id="contrast" type="range" min="0.6" max="1.6" step="0.05" value="1" style="width:100%" />
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center">
+            <label class="muted">Mute</label>
+            <input id="mute" type="checkbox" />
+          </div>
+        </div>
+
+        <div id="status" class="status" style="display:none"></div>
+      </div>
+
+      <footer>
+        <small class="muted">Tips: To avoid autoplay blocks the player starts muted when autoplay is used. Presenter can unmute using the controls above.</small>
+      </footer>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// Simple Live Page — auto-detect using YouTube Data API v3 (optional) or manual paste
+const $ = id => document.getElementById(id);
+let pollTimer = null;
+let currentVideo = null;
+const defaultChannelId = 'UCRh_MHpdDo9zHwxa9Xu_t2w';
+
+// UI
+const apiKeyEl = $('apiKey');
+const channelEl = $('channelId');
+const saveBtn = $('saveBtn');
+const clearBtn = $('clearBtn');
+const manualEl = $('manual');
+const startManual = $('startManual');
+const stopBtn = $('stop');
+const playerArea = $('playerArea');
+const placeholder = $('placeholder');
+const liveBadge = $('liveBadge');
+const statusBox = $('status');
+const vol = $('vol');
+const brightness = $('brightness');
+const contrast = $('contrast');
+const muteChk = $('mute');
+
+// load saved values
+channelEl.value = localStorage.getItem('md_channel') || defaultChannelId;
+apiKeyEl.value = localStorage.getItem('md_api') || '';
+
+saveBtn.addEventListener('click', ()=>{
+  localStorage.setItem('md_api', apiKeyEl.value.trim());
+  localStorage.setItem('md_channel', channelEl.value.trim());
+  showStatus('Saved API key & Channel ID (one-time). Auto-detect enabled.');
+  startAutoDetect();
+});
+
+clearBtn.addEventListener('click', ()=>{
+  localStorage.removeItem('md_api');
+  localStorage.removeItem('md_channel');
+  apiKeyEl.value = '';
+  showStatus('Cleared saved credentials.');
+  stopPolling();
+});
+
+startManual.addEventListener('click', ()=>{
+  stopPolling();
+  const val = manualEl.value.trim();
+  if(!val){ alert('Paste YouTube Live URL or ID'); return; }
+  const id = extractId(val);
+  if(!id){ alert('Could not extract video ID. Provide full link or 11-char ID.'); return; }
+  startEmbed(id, {autoplay:true, mute:true});
+});
+
+stopBtn.addEventListener('click', ()=>{
+  stopAll();
+  showStatus('Stopped.');
+});
+
+function extractId(input){
+  if(!input) return null;
+  input = input.trim();
+  if(/^[a-zA-Z0-9_-]{11}$/.test(input)) return input;
+  let m = input.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/);
+  if(m) return m[1];
+  m = input.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
+  if(m) return m[1];
+  m = input.match(/embed\/([a-zA-Z0-9_-]{11})/);
+  if(m) return m[1];
+  return null;
+}
+
+function startEmbed(id, opts={}){
+  currentVideo = id;
+  liveBadge.style.display = 'inline-block';
+  placeholder.style.display = 'none';
+  statusBox.style.display = 'block';
+  statusBox.textContent = 'Embedding live video: ' + id;
+
+  // clear
+  playerArea.innerHTML = '';
+
+  const muteParam = opts.mute ? '&mute=1' : '';
+  const autoplayParam = opts.autoplay ? '&autoplay=1' : '';
+  const src = `https://www.youtube.com/embed/${id}?rel=0&enablejsapi=1${autoplayParam}${muteParam}`;
+  const ifr = document.createElement('iframe');
+  ifr.id = 'ytplayer';
+  ifr.src = src;
+  ifr.allow = 'autoplay; encrypted-media; picture-in-picture';
+  ifr.setAttribute('allowfullscreen','');
+  ifr.style.filter = `brightness(${brightness.value}) contrast(${contrast.value})`;
+  playerArea.appendChild(ifr);
+
+  // load YT API and hook volume/mute
+  loadYT().then(()=>{
+    try{
+      if(window.YT && window.YT.Player){
+        if(window._md_player) try{ window._md_player.destroy(); }catch(e){}
+        window._md_player = new YT.Player('ytplayer', {
+          events:{
+            onReady:(ev)=>{
+              ev.target.setVolume(parseInt(vol.value));
+              if(muteChk.checked) ev.target.mute(); else ev.target.unMute();
+            }
+          }
+        });
+      }
+    }catch(err){ console.warn(err); }
+  }).catch(()=>{ showStatus('YT API not loaded — volume control may be limited.'); });
+}
+
+function loadYT(){
+  return new Promise((res, rej)=>{
+    if(window.YT && window.YT.Player) return res();
+    const s = document.createElement('script'); s.src='https://www.youtube.com/iframe_api';
+    s.onload = ()=>{
+      const chk = setInterval(()=>{ if(window.YT && window.YT.Player){ clearInterval(chk); res(); } },200);
+      setTimeout(()=> rej(new Error('YT load timeout')),5000);
+    };
+    s.onerror = ()=> rej(new Error('YT failed'));
+    document.head.appendChild(s);
+  });
+}
+
+// basic UI hooks
+vol.oninput = ()=>{ try{ if(window._md_player) window._md_player.setVolume(parseInt(vol.value)); }catch(e){} };
+brightness.oninput = ()=>{ const f = `brightness(${brightness.value}) contrast(${contrast.value})`; const ifr = document.querySelector('#ytplayer'); if(ifr) ifr.style.filter = f; };
+contrast.oninput = ()=>{ const f = `brightness(${brightness.value}) contrast(${contrast.value})`; const ifr = document.querySelector('#ytplayer'); if(ifr) ifr.style.filter = f; };
+muteChk.onchange = ()=>{ try{ if(window._md_player){ if(muteChk.checked) window._md_player.mute(); else window._md_player.unMute(); } }catch(e){} };
+
+function showStatus(msg){ statusBox.style.display='block'; statusBox.textContent = msg; }
+
+// Auto-detect using YouTube Data API v3
+function startAutoDetect(){
+  const api = localStorage.getItem('md_api') || apiKeyEl.value.trim();
+  const ch = localStorage.getItem('md_channel') || channelEl.value.trim();
+  if(!api || !ch){ showStatus('API Key or Channel ID missing. Use manual start or save credentials.'); return; }
+  stopPolling();
+  showStatus('Auto-detect started for channel ' + ch);
+  checkLiveNow(api, ch);
+  pollTimer = setInterval(()=> checkLiveNow(api,ch), 15000);
+}
+
+async function checkLiveNow(api, ch){
+  try{
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${encodeURIComponent(ch)}&type=video&eventType=live&key=${encodeURIComponent(api)}`;
+    const r = await fetch(url);
+    if(!r.ok){ showStatus('YouTube API error: ' + r.status + '. Check API key and quota.'); stopPolling(); return; }
+    const data = await r.json();
+    if(data.items && data.items.length){
+      const vid = data.items[0].id.videoId;
+      if(vid && vid !== currentVideo){ startEmbed(vid,{autoplay:true,mute:true}); }
+    } else {
+      // not live
+      liveBadge.style.display = 'none';
+      showStatus('Channel is not live');
+      // keep placeholder if nothing playing
+      if(!currentVideo) placeholder.style.display = 'block';
+    }
+  }catch(err){ showStatus('Error checking live: ' + err.message); stopPolling(); }
+}
+
+function stopPolling(){ if(pollTimer){ clearInterval(pollTimer); pollTimer=null; } }
+
+function stopAll(){ stopPolling(); currentVideo = null; playerArea.innerHTML = '<div id="placeholder" style="color:#888;text-align:center;padding-top:220px">No live stream detected. Start manual or provide API Key + Channel ID and go live on YouTube.</div>'; liveBadge.style.display='none'; statusBox.style.display='none'; }
+
+// auto start if saved
+window.addEventListener('load', ()=>{
+  const savedApi = localStorage.getItem('md_api');
+  const savedCh = localStorage.getItem('md_channel');
+  if(savedApi && savedCh) startAutoDetect();
+});
+
+</script>
+</body>
+</html>
